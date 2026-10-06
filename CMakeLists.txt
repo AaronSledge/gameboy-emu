@@ -19,6 +19,8 @@ enable_testing()
 add_executable(
   memory_tests
   memory_tests.cpp
+  opcode_tests.cpp
+  src/CPU/opcode.cpp
   src/MMU/memory.cpp
 )
 target_link_libraries(

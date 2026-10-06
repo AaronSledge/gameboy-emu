@@ -1,28 +1,36 @@
-#include "registers.h"
 #include "opcode.h"
 #include "../MMU/memory.h"
+#include <iostream>
 
-Registers registers;
-MMU mmu;
-
-int opcode::NOP() {
+Opcode::Opcode() {
+    AF = 0;
+    BC = 0;
+    DE = 0;
+    HL = 0;
+    SP = 0;
+    PC = 0;
+}
+int Opcode::NOP() {
     //simply return 4 for the cycles
     return 4;
 }
 
-int opcode::LDr16N16(uint16_t &reg) {
+int Opcode::LDr16N16(uint16_t &reg, MMU mmu) {
     //since this is 16 bit integer we have to get low and high bits
-    uint8_t highbits = mmu.readROM(registers.PC++);
+    
+    uint8_t highbits = mmu.readROM(PC++);
     //increment again to get the high bit
-    uint8_t lowbits = mmu.readROM(registers.PC++);
+    uint8_t lowbits = mmu.readROM(PC++);
+
+    
     //shift 8 bits left to add 8 0s towards the end and bitwise OR it to add the low bit
     reg = (highbits << 8) | lowbits;
     return 12;
 }
 
-int opcode::LDr16memA(uint16_t &reg) {
+int Opcode::LDr16memA(uint16_t reg, MMU &mmu) {
     //to seperate A shift the bits to the right then AND by 0xFF to only get the right side bits
-    uint8_t A = (registers.AF >> 8) & 0xFF;
+    uint8_t A = (AF >> 8) & 0xFF;
     //if address is between these two hex then it goes into vram according to memory map
     if(reg > 0x7FFF & reg <= 0x9FFF) {
         uint8_t address = reg - 8000;
@@ -48,10 +56,11 @@ int opcode::LDr16memA(uint16_t &reg) {
         uint8_t address = reg - 0xFF80;
         mmu.writeHRAM(address, A);
     }
-    return 12;
+    return 8;
 }
 
-int opcode::INCr16(uint16_t &reg) {
+int Opcode::INCr16(uint16_t &reg) {
     reg++;
+    return 8;
 }
 

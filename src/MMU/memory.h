@@ -1,5 +1,8 @@
 #pragma once
 #include <vector>
+#include <string>
+#include <cstdint>
+
 class MMU {
     private:
         std::vector<uint8_t> rom;
@@ -21,6 +24,7 @@ class MMU {
         uint8_t readHRAM(uint8_t address);
         uint8_t readIE();
 
+        void loadROM(std::string filename);
         void writeVRAM(uint8_t address, uint8_t data);
         void writeERAM(uint8_t address, uint8_t data);
         void writeWRAM(uint8_t address, uint8_t data);
