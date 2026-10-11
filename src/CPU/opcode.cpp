@@ -15,7 +15,7 @@ int Opcode::NOP() {
     return 4;
 }
 
-int Opcode::LDr16N16(uint16_t &reg, MMU mmu) {
+int Opcode::LDr16N16(uint16_t &reg, MMU &mmu) {
     //since this is 16 bit integer we have to get low and high bits
     
     uint8_t highbits = mmu.readROM(PC++);
@@ -62,5 +62,42 @@ int Opcode::LDr16memA(uint16_t reg, MMU &mmu) {
 int Opcode::INCr16(uint16_t &reg) {
     reg++;
     return 8;
+}
+
+int Opcode::INCr8(uint8_t &reg) {
+    reg++;
+    return 4;
+}
+
+int Opcode::DECr8(uint8_t &reg) {
+    reg--;
+    return 4;
+}
+
+int Opcode::LDr8N8(uint8_t &reg, MMU &mmu) {
+    reg = mmu.readROM(PC++);
+    return 8;
+}
+
+int Opcode::RLCA() {
+    //Shift bits to the right and AND the right side by 0xFF to only get the last 8 bits
+    uint8_t A = (AF >> 8) & 0xFF;
+    //Get the last 8 bits of AF
+    uint8_t F = AF & 0xFF;
+
+    //AND by 00010000 to get only the carry flag bit which is at position 4
+    uint8_t carry = F & 0x10;
+    //shift A to the right by 7 positons then AND by 1;
+    uint8_t msb = (A >> 7) & 1;
+    //shift all bits to the left
+    A = A << 1;
+    //place the most msb before change to the carry bit
+    F = (F & ~(1 << 4)) | (msb << 4);
+    //place the previous carry bit at the end
+    A = A | carry;
+    
+    //Reassign AF by combining the two bytes
+    AF = (A << 8) | F;
+    return 4;
 }
 
